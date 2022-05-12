@@ -14,13 +14,12 @@ services:
     container_name: nginx
     ports:
       - 80:80
+      - 443:443
     volumes:
-      - ./src:/var/www/html:delegated
+      - ./src/project-folder-name:/var/www/html:delegated
     depends_on:
       - php
-      - redis
       - mysql
-      - mailhog
     networks:
       - laravel
 
@@ -50,16 +49,7 @@ services:
         - GID=${GID:-1000}
     container_name: php
     volumes:
-      - ./src:/var/www/html:delegated
-    networks:
-      - laravel
-
-  redis:
-    image: redis:alpine
-    container_name: redis
-    restart: unless-stopped
-    ports:
-      - 6379:6379
+      - ./src/project-folder-name:/var/www/html:delegated
     networks:
       - laravel
 
@@ -72,7 +62,7 @@ services:
         - GID=${GID:-1000}
     container_name: composer
     volumes:
-      - ./src:/var/www/html
+      - ./src/project-folder-name:/var/www/html
     working_dir: /var/www/html
     depends_on:
       - php
@@ -82,10 +72,10 @@ services:
       - laravel
 
   npm:
-    image: node:13.7
+    image: node:16.15.0
     container_name: npm
     volumes:
-      - ./src:/var/www/html
+      - ./src/project-folder-name:/var/www/html
     ports:
       - 3000:3000
       - 3001:3001
@@ -103,19 +93,10 @@ services:
         - GID=${GID:-1000}
     container_name: artisan
     volumes:
-      - ./src:/var/www/html:delegated
+      - ./src/project-folder-name:/var/www/html:delegated
     depends_on:
       - mysql
     working_dir: /var/www/html
     entrypoint: ['php', '/var/www/html/artisan']
-    networks:
-      - laravel
-
-  mailhog:
-    image: mailhog/mailhog:latest
-    container_name: mailhog
-    ports:
-      - 1025:1025
-      - 8025:8025
     networks:
       - laravel
